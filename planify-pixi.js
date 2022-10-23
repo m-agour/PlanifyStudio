@@ -8,7 +8,8 @@ class PlanifyDraw extends Component {
     if (this.first) return;
     this.first = true;
     this.done = false;
-
+    this.last_point = null;
+    
     // creating app
 
     this.app = new PIXI.Application({
@@ -24,8 +25,12 @@ class PlanifyDraw extends Component {
 
     // Creating Geometry
     this.plan_points = [];
-    this.lines = new PIXI.Graphics();
+    this.texts = []
+    this.current_text = new PIXI.Text('');
+    this.app.stage.addChild(this.current_text);
 
+    this.lines = new PIXI.Graphics();
+    this.text = new PIXI.Graphics();
     this.app.stage.addChild(this.lines);
 
     document.addEventListener("mousedown", this.onMouseDown, false);
@@ -109,17 +114,36 @@ class PlanifyDraw extends Component {
     return [minPoint, maxPoint];
   };
 
+  drawText = (pos, scale, degree)=>{
+    this.lines.clear();
+    this.lines.lineStyle({ width: 4 });
+    this.lines.beginFill("0xe74c3c");
+
+  }
+
   drawShape = () => {
     var path = [];
-
     if (this.lines && this.plan_points.length > 0) {
       this.lines.clear();
       this.lines.lineStyle({ width: 4 });
       this.lines.beginFill("0xe74c3c");
 
       this.lines.moveTo(this.plan_points[0].x, this.plan_points[0].y);
-
       this.plan_points.map((l) => this.lines.lineTo(l.x, l.y));
+      if (this.last_point) {
+        this.lines.lineTo(this.last_point.x, this.last_point.y)
+        if (this.plan_points.length >= 1){
+          let d = this.last_point.distance(this.plan_points[this.plan_points.length - 1])
+          this.current_text.text = (d/100).toFixed(1).toString() +  ' m'
+          let vec = this.last_point.sub(this.plan_points[this.plan_points.length - 1]).normalize()
+          let pos = this.last_point.sub(vec.mul(d / 2))
+          console.log(pos);
+          this.current_text.x = pos.x
+          this.current_text.y = pos.y
+
+        }
+
+      }
       this.lines.closePath();
       this.lines.endFill();
 
@@ -151,7 +175,6 @@ class PlanifyDraw extends Component {
         this.lines.endFill();
       }
 
-      this.app.stage.addChild(this.lines);
     }
   };
 
@@ -167,6 +190,11 @@ class PlanifyDraw extends Component {
       this.selected_point.y = evt.clientY;
       this.drawShape();
     }
+  };
+
+ onMoveDraw= (evt) => {
+    this.last_point = this.getMousePos(evt, true)
+    this.drawShape()
   };
 
   onDragLine = (evt) => {
@@ -226,6 +254,9 @@ class PlanifyDraw extends Component {
     var x = evt.clientX;
     var y = evt.clientY;
     var vNow = new FastVector(x, y);
+    document.addEventListener("mousemove", this.w, false);
+    document.removeEventListener("mousemove", this.onMoveDraw, false);
+    this.last_point = null;
 
     if (this.done) {
       var close_point = this.closePoint(vNow);
@@ -266,16 +297,19 @@ class PlanifyDraw extends Component {
     ) {
       vNow = this.plan_points[0];
       this.done = true;
+      this.drawShape();
+      return;
     }
 
     this.plan_points.push(vNow);
     this.drawShape();
-
+    document.addEventListener("mousemove", this.onMoveDraw, false);
     document.addEventListener("mouseup", this.onMouseUp, false);
   };
   // animate
-  animate = () => {
+  animate = (evt) => {
     requestAnimationFrame(this.animate);
+    // if (this.plan_points.length > 0) this.last_point = this.getMousePos(evt)
     this.app.render();
     // this.current_pos = null
   };
