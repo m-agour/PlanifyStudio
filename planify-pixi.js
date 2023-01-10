@@ -3,7 +3,7 @@ import * as PIXI from "pixi.js";
 import FastVector from "fast-vector";
 import Button from "react-bootstrap/Button";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { getGridRect, submitData } from "./helpers";
+import { getGridRect, submitData, getText, updateText } from "./helpers";
 
 class PlanifyDraw extends Component {
   constructor(props) {
@@ -97,19 +97,19 @@ class PlanifyDraw extends Component {
     // Creating Geometry
     this.plan_points = [];
     this.texts = [];
-    this.current_text = new PIXI.Text("");
-    this.current_text.anchor.set(0.5);
-    this.current_text.color = 0x0ff000;
+    this.current_text = getText("0.0");
+
     this.lines = new PIXI.Graphics();
     this.text = new PIXI.Graphics();
     this.grid = getGridRect(w, h, this.grid_pitch);
 
     this.app.stage.addChild(this.grid);
     this.app.stage.addChild(this.container);
+    this.app.stage.addChild(this.textContainer);
     this.container.addChild(this.lines);
-    // this.textContainer.addChild(this.current_text);
-    this.container.addChild(this.textContainer);
-    this.container.addChild(this.ch);
+    this.textContainer.addChild(this.current_text);
+    // this.container.addChild(this.textContainer);
+    this.app.stage.addChild(this.ch);
 
     this.app.stage.addListener("mousedown", this.onMouseDown, false);
     this.app.stage.addListener("contextmenu", this.onRightClick, false);
@@ -199,6 +199,22 @@ class PlanifyDraw extends Component {
   };
 
   drawShape = () => {
+    let end = 1;
+    if (this.done) end = 0;
+    for (let i = 0; i < this.plan_points.length - end; i++) {
+      let a = this.plan_points[i];
+      let b = this.plan_points[(i + 1) % this.plan_points.length];
+
+      let d = a.distance(b);
+      let vec = b.sub(a).normalize();
+      let pos = b.sub(vec.mul(d / 2));
+      updateText(
+        this.textContainer.getChildAt(i),
+        (d / 100).toFixed(1).toString(),
+        pos
+      ); // + " m";
+    }
+
     this.lines.clear();
     if (this.lines && this.plan_points.length > 0) {
       // aligns
@@ -237,13 +253,13 @@ class PlanifyDraw extends Component {
           let d = this.last_point.distance(
             this.plan_points[this.plan_points.length - 1]
           );
-          this.current_text.text = (d / 100).toFixed(1).toString() + " m";
+
           let vec = this.last_point
             .sub(this.plan_points[this.plan_points.length - 1])
             .normalize();
           let pos = this.last_point.sub(vec.mul(d / 2));
-          this.current_text.x = pos.x;
-          this.current_text.y = pos.y;
+
+          updateText(this.current_text, (d / 100).toFixed(1).toString(), pos); // + " m";
         }
       }
       if (this.done) {
@@ -291,24 +307,34 @@ class PlanifyDraw extends Component {
     align_x = true,
     align_y = true,
     align_grid = this.align_grid
-  ) => { 
-
-    if (align_grid){
-
-      if (current.x % this.grid_pitch > this.grid_pitch - factor) {
-        current.x = current.x + (this.grid_pitch - (current.x % this.grid_pitch));
+  ) => {
+    if (align_grid) {
+      if (align_x & (current.x % this.grid_pitch > this.grid_pitch - factor)) {
+        current.x =
+          current.x + (this.grid_pitch - (current.x % this.grid_pitch));
         this.x_aligns.push(current.x);
         align_x = true;
       }
-      if (current.y % this.grid_pitch > this.grid_pitch - factor) {
-        current.y = current.y + (this.grid_pitch - (current.y % this.grid_pitch));
+      if (align_x & (current.x % this.grid_pitch < factor)) {
+        current.x = current.x - (current.x % this.grid_pitch);
+        this.x_aligns.push(current.x);
+        align_x = true;
+      }
+      if (align_y & (current.y % this.grid_pitch > this.grid_pitch - factor)) {
+        current.y =
+          current.y + (this.grid_pitch - (current.y % this.grid_pitch));
+        this.y_aligns.push(current.y);
+        align_y = true;
+      }
+      if (align_x & (current.y % this.grid_pitch < factor)) {
+        current.y = current.y - (current.y % this.grid_pitch);
         this.y_aligns.push(current.y);
         align_y = true;
       }
     }
     for (let i = 0; i < target.length; i++) {
       if (exclude.includes(target[i])) continue;
-      if(!align_x && !align_y) break;
+      if (!align_x && !align_y) break;
       if (
         align_x &&
         current !== target[i] &&
@@ -355,10 +381,8 @@ class PlanifyDraw extends Component {
         }
       }
       if (this.align) {
-        this.alignWith(new_point, first, this.align_factor);
-        this.plan_points.map((p) =>
-          this.alignWith(new_point, p, this.align_factor)
-        );
+        this.alignWith(new_point, [first], this.align_factor);
+        this.alignWith(new_point, this.plan_points, this.align_factor);
       }
       this.last_point = new_point;
       this.drawShape();
@@ -386,17 +410,11 @@ class PlanifyDraw extends Component {
       }
       if (this.align) {
         let first = this.plan_points[0];
-        this.alignWith(new_pos, first, this.align_factor, [
-          this.selected_point,
-          prev,
-          next,
-        ]);
-        this.plan_points.map((p) =>
-          this.alignWith(new_pos, p, this.align_factor, [
-            this.selected_point,
-            prev,
-            next,
-          ])
+        this.alignWith(
+          new_pos,
+          this.plan_points.concat([first]),
+          this.align_factor,
+          [this.selected_point, prev, next]
         );
       }
 
@@ -443,15 +461,13 @@ class PlanifyDraw extends Component {
       }
 
       if (this.align)
-        this.plan_points.map((p) =>
-          this.alignWith(
-            mpos,
-            p,
-            this.align_factor,
-            this.selected_line,
-            align_x,
-            align_y
-          )
+        this.alignWith(
+          mpos,
+          this.plan_points,
+          this.align_factor,
+          this.selected_line,
+          align_x,
+          align_y
         );
 
       this.selected_line[0].x = this.selected_line_abs[0].x + mpos.x;
@@ -480,7 +496,6 @@ class PlanifyDraw extends Component {
       if (newMin.y < 0) mouse_pos.y = minPoint.y;
 
       mouse_pos = this.getMousePos(evt, true);
-      console.log(mouse_pos);
       if (mouse_pos)
         for (var i = 0; i < this.plan_points.length; i++) {
           this.plan_points[i] = this.selected_polygon[i].add(mouse_pos);
@@ -489,13 +504,51 @@ class PlanifyDraw extends Component {
     }
   };
 
+  onSelect = (evt) => {
+    if (this.done) {
+      var vNow = this.getMousePos(evt, true);
+
+      var close_point = this.closePoint(vNow);
+      var close_line = this.closeLine(vNow);
+
+      if (close_point !== null) {
+        this.selected_point = close_point;
+        this.selected_line = null;
+        this.drawShape();
+        return;
+      }
+      else if (close_line !== null) {
+        this.selected_line = close_line;
+        this.selected_point = null;
+        this.selected_line_abs = [
+          this.selected_line[0].sub(vNow),
+          this.selected_line[1].sub(vNow),
+        ];
+        this.drawShape();
+        return;
+      }
+
+      else{
+        this.selected_line = null;
+        this.selected_point = null;
+        this.drawShape();
+
+      }
+      return;
+    }
+  }
+
   onMouseUp = (evt) => {
     this.app.stage.removeListener("mousemove", this.onDragPoint, false);
     this.app.stage.removeListener("mousemove", this.onDragLine, false);
     this.app.stage.removeListener("mousemove", this.onDragPolygon, false);
+    if (this.done) {
+      this.app.stage.on("mousemove", this.onSelect, false);
+    }
     this.selected_line = null;
     this.selected_point = null;
     this.selected_polygon = null;
+
     this.drawShape();
   };
   assignRef = (element) => {
@@ -511,23 +564,28 @@ class PlanifyDraw extends Component {
     }
 
     this.app.stage.removeListener("mousemove", this.onMoveDraw, false);
+    this.app.stage.removeListener("mousemove", this.onSelect, false);
+
     this.last_point = null;
 
     if (this.done) {
       var close_point = this.closePoint(vNow);
+      var close_line = this.closeLine(vNow);
+
       if (close_point !== null) {
         this.selected_point = close_point;
+        this.selected_line = null;
         this.app.stage.addListener("mousemove", this.onDragPoint, false);
         this.drawShape();
         return;
       }
-      var close_line = this.closeLine(vNow);
-      if (close_line !== null) {
+      else if (close_line !== null) {
         this.selected_line = close_line;
         this.selected_line_abs = [
           this.selected_line[0].sub(vNow),
           this.selected_line[1].sub(vNow),
         ];
+        this.selected_point = null;
         this.app.stage.addListener("mousemove", this.onDragLine, false);
         this.drawShape();
         return;
@@ -544,6 +602,9 @@ class PlanifyDraw extends Component {
         return;
       }
       return;
+    } else if (this.plan_points.length > 0) {
+      let new_text = getText("0.0");
+      this.textContainer.addChildAt(new_text, this.textContainer.length - 1);
     }
 
     if (
@@ -552,6 +613,8 @@ class PlanifyDraw extends Component {
     ) {
       vNow = this.plan_points[0];
       this.done = true;
+      this.textContainer.removeChildAt(0);
+
       this.drawShape();
       return;
     }
