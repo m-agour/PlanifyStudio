@@ -43,6 +43,7 @@ class PlanifyDraw extends Component {
     this.mode = 0;
     // this.zoom = 1;
     this.door_poly = null;
+    this.selected_door_poly = null;
 
     this.point_counter = 0;
 
@@ -347,7 +348,7 @@ class PlanifyDraw extends Component {
       let width = window.screen.width;
       let height = window.screen.height;
 
-      console.log(width, height);
+      // console.log(width, height);
 
       if (this.door_poly) {
         let width = 0;
@@ -601,6 +602,11 @@ class PlanifyDraw extends Component {
         for (var i = 0; i < this.plan_points.length; i++) {
           this.plan_points[i] = this.selected_polygon[i].add(mouse_pos);
         }
+
+        if(this.selected_door_poly){
+          this.door_poly[0] = this.selected_door_poly[0] + mouse_pos.x;
+          this.door_poly[1] = this.selected_door_poly[1] + mouse_pos.y;
+        }
       this.drawShape();
     }
   };
@@ -756,6 +762,7 @@ polyCentroid = () => {
         this.selected_point = close_point;
         this.selected_line = null;
         this.app.stage.addListener("mousemove", this.onDragPoint, false);
+        this.door_poly = null;
         this.drawShape();
         return;
       }
@@ -766,7 +773,10 @@ polyCentroid = () => {
           this.selected_line[1].sub(vNow),
         ];
         this.selected_point = null;
+        this.door_poly = null;
+
         this.app.stage.addListener("mousemove", this.onDragLine, false);
+        
         this.drawShape();
         return;
       }
@@ -785,6 +795,8 @@ polyCentroid = () => {
           this.selected_polygon.push(l.sub(vNow));
         });
 
+        if (this.door_poly) this.selected_door_poly = [this.door_poly[0] - vNow.x, this.door_poly[1] - vNow.y]
+        
         this.app.stage.addListener("mousemove", this.onDragPolygon, false);
         this.drawShape();
         return;
