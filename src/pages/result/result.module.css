@@ -1,0 +1,11 @@
+.studio {
+    /* background: linear-gradient(rgb(17, 90, 90), darkcyan,rgb(41, 152, 152) ,darkcyan, rgb(11, 73, 73)); */
+    background: lavender;
+    padding-top: 15px;
+    /* width: 100%; */
+    height: 100%;
+    /* position: relative; */
+    min-height: 100%;
+    /* display: flex; */
+    /* justify-content: center; */ 
+}
