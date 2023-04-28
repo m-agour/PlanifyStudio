@@ -39,7 +39,7 @@ class PlanifyDraw extends Component {
     this.x_aligns = [];
     this.y_aligns = [];
     this.area = 0;
-    this.scale = 50;
+    this.scale = 75;
     this.mode = 0;
     // this.zoom = 1;
     this.door_poly = null;
@@ -49,7 +49,7 @@ class PlanifyDraw extends Component {
 
     // creating app
 
-    const w = 2000;
+    const w = 20000;
     const h = 900;
 
     this.width = w;
@@ -861,6 +861,7 @@ polyCentroid = () => {
     let data = this.plan_points;
     reqData.mask = data.map((l) => l.toArray());
     reqData.door_pos = this.door_poly;
+    reqData.area = this.area;
   let response ;
     // submit the data to the server
   submitData(reqData)

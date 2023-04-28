@@ -31,9 +31,9 @@ const App = () => {
     {/* <Header /> */}
     <div>
       <ImageDisplay
-        image1={1}
+        image1={data.project_img}
         image1Title="Input Boundary"
-        image2={1}
+        image2={data.design_img}
         image2Title="Generated Layout"
       />
     </div>
