@@ -39,7 +39,7 @@ class PlanifyDraw extends Component {
     this.x_aligns = [];
     this.y_aligns = [];
     this.area = 0;
-    this.scale = 75;
+    this.scale = 100;
     this.mode = 0;
     // this.zoom = 1;
     this.door_poly = null;
@@ -731,9 +731,11 @@ polyCentroid = () => {
 
     this.drawShape();
   };
+  
   assignRef = (element) => {
     this.container = element;
   };
+
   onMouseDown = (evt) => {
     
     if (evt.which === 3) return;
