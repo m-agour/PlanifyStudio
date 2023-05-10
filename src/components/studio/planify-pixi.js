@@ -31,15 +31,15 @@ class PlanifyDraw extends Component {
     this.done = false;
     this.last_point = null;
     this.align = true;
-    this.align_factor = 6;
+    this.align_factor = 3;
     this.align_grid = true;
     this.horver = true;
-    this.grid_pitch_big = 100;
-    this.grid_pitch = 10;
+    this.grid_pitch_big = 50;
+    this.grid_pitch = 5;
     this.x_aligns = [];
     this.y_aligns = [];
     this.area = 0;
-    this.scale = 100;
+    this.scale = 50;
     this.mode = 0;
     // this.zoom = 1;
     this.door_poly = null;
@@ -49,7 +49,7 @@ class PlanifyDraw extends Component {
 
     // creating app
 
-    const w = 20000;
+    const w = 1920;
     const h = 900;
 
     this.width = w;
@@ -101,12 +101,13 @@ class PlanifyDraw extends Component {
     this.app.stage.interactive = true;
 
     function cursorCroshair(event) {
-      let x = event.data.global.x;
+      let x = event.data.global.x ;
       let y = event.data.global.y;
 
       ch.x = x + ch.width / 4;
       ch.y = y + (2 * ch.height) / 3;
-      if (x < w && y < h) {
+      if (x < w && y < h && y>0 && x>0) {
+        console.log(x, y);
         document.getElementById("root").style.cursor = "none";
         if (!ch.visible) ch.visible = true;
     
@@ -837,7 +838,7 @@ polyCentroid = () => {
   animate = (evt) => {
     const width = this.canvasRef.current.offsetWidth;
     const height = this.canvasRef.current.offsetHeight;
-    this.app.renderer.resize(width, this.height);
+    this.app.renderer.resize(this.width, this.height);
     requestAnimationFrame(this.animate);
     // if (this.plan_points.length > 0) this.last_point = this.getMousePos(evt)
     this.app.render();
@@ -898,12 +899,18 @@ setDoorMode = () => {
 
   render() {
     return (
-      <div ref={this.spinner}>
-          <div ref={this.canvasRef} />
-          <Button className={'planify-door'} onClick={this.setDoorMode}>Draw Door</Button> 
-      	  <Button className={'planify-selection'} >Selection Mode</Button> 
-          <Button className={'planify-button'} onClick={this.getPlanData} >Planify Now!</Button>
-
+      <div ref={this.spinner} className="container">
+      <div className={'toolbar element'}>
+        <div className={'toolbar-up'}>
+          <Button className={'planify-door div-buttons'} onClick={this.setDoorMode}>Draw Door</Button> 
+      	  <Button className={'planify-selection div-buttons'} >Selection Mode</Button> 
+        </div>
+        <div className={'toolbar-down'}>
+          <Button className={'planify-button div-buttons'} onClick={this.getPlanData} >Planify Now!</Button>
+        </div>
+        
+      </div>
+      <div ref={this.canvasRef} className="canvas-container"/>
       </div>
     );
   }
