@@ -49,8 +49,8 @@ class PlanifyDraw extends Component {
 
     // creating app
 
-    const w = 1920;
-    const h = 900;
+    const w = 1765;
+    const h = 852;
 
     this.width = w;
     this.height = h;
@@ -107,7 +107,6 @@ class PlanifyDraw extends Component {
       ch.x = x + ch.width / 4;
       ch.y = y + (2 * ch.height) / 3;
       if (x < w && y < h && y>0 && x>0) {
-        console.log(x, y);
         document.getElementById("root").style.cursor = "none";
         if (!ch.visible) ch.visible = true;
     
@@ -789,7 +788,6 @@ polyCentroid = () => {
 
         const nearestPoint = turf.nearestPointOnLine(this.polygon, p);
 
-        console.log(nearestPoint.geometry.coordinates)
       }
 
       if (this.isInsidePolygon(vNow)) {
