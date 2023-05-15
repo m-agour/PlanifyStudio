@@ -47,10 +47,12 @@ class PlanifyDraw extends Component {
 
     this.point_counter = 0;
 
+    this.isMouseDown = false;
+
     // creating app
 
     const w = 1765;
-    const h = 852;
+    const h = 800;
 
     this.width = w;
     this.height = h;
@@ -213,7 +215,7 @@ class PlanifyDraw extends Component {
     return null;
   };
 
-  closeLine = (mouse_pos, factor = 0.1) => {
+  closeLine = (mouse_pos, factor = 0.06) => {
     let a, b;
     let points = this.plan_points.slice(0);
     points.push(points[0]);
@@ -290,7 +292,7 @@ class PlanifyDraw extends Component {
     if (this.lines && this.plan_points.length > 0) {
       // aligns
       this.lines.alpha = 0.3;
-      this.lines.lineStyle(1, "0x00f43d", 1);
+      this.lines.lineStyle(1, "0xdddd00", 1);
 
       for (let i = 0; i < this.x_aligns.length; i++) {
         this.lines.moveTo(this.x_aligns[i], 0);
@@ -300,6 +302,9 @@ class PlanifyDraw extends Component {
         this.lines.moveTo(0, this.y_aligns[i]);
         this.lines.lineTo(10000, this.y_aligns[i]);
       }
+
+      // if (this.last_point !== null) {
+      // console.log(this.last_point.x / this.scale);}
       this.x_aligns = [];
       this.y_aligns = [];
 
@@ -312,8 +317,11 @@ class PlanifyDraw extends Component {
       }
 
       // polygon
-      this.lines.lineStyle({ width: 4 });
-      this.lines.beginFill("0xffd000");
+      this.lines.lineStyle({ width: 2.5 });
+      // let polyColor = polySelected?"0xffa111":"0xffd000";
+      let polyColor = "0xffd000";
+      let polySelected = this.done&&(this.selected_polygon||this.selected_line||this.selected_point);
+      this.lines.beginFill(polyColor, this.isMouseDown&&polySelected?0.7:1);
       this.lines.moveTo(this.plan_points[0].x, this.plan_points[0].y);
       if (!this.done) this.lines.endFill();
 
@@ -340,7 +348,7 @@ class PlanifyDraw extends Component {
 
       // selected line
       if (this.done && this.selected_line !== null) {
-        this.lines.lineStyle(6, 0xff1414, 1);
+        this.lines.lineStyle(3, this.isMouseDown?0xff0000:0xaa0000, 1);
         this.lines.moveTo(this.selected_line[0].x, this.selected_line[0].y);
         this.lines.lineTo(this.selected_line[1].x, this.selected_line[1].y);
       }
@@ -376,18 +384,31 @@ class PlanifyDraw extends Component {
       }
       // Points
       this.lines.lineStyle(0);
-      this.lines.beginFill("0x070a5e", 1);
+      this.lines.beginFill("0x070a5e", 0.5);
       this.plan_points.map((l) => this.lines.drawCircle(l.x, l.y, 8));
       this.lines.endFill();
 
       // initial point and selected to red
+
+      let first_point_align = false;
+      if (this.last_point && (this.last_point.x === this.plan_points[0].x || this.last_point.y === this.plan_points[0].y)) {
+        first_point_align = true;
+      }
+      
+
       if (!this.done) {
-        this.lines.beginFill("0xff1414", 1);
-        this.lines.drawCircle(this.plan_points[0].x, this.plan_points[0].y, 10);
+        this.lines.beginFill("0xff5555", 0.5);
+        this.lines.drawCircle(this.plan_points[0].x, this.plan_points[0].y, 8);
         this.lines.endFill();
-      } else if (this.done && this.selected_point !== null) {
-        this.lines.beginFill("0xff1414", 1);
-        this.lines.drawCircle(this.selected_point.x, this.selected_point.y, 10);
+      } else if (this.done && this.selected_point !== null && !first_point_align) {
+        this.lines.beginFill("0xff0600", this.isMouseDown?1:0.5);
+        this.lines.drawCircle(this.selected_point.x, this.selected_point.y, 8);
+        this.lines.endFill();
+      }
+
+      if (first_point_align) {
+        this.lines.beginFill("0xff0600", 1);
+        this.lines.drawCircle(this.plan_points[0].x, this.plan_points[0].y, 8);
         this.lines.endFill();
       }
     }
@@ -654,6 +675,9 @@ class PlanifyDraw extends Component {
       // const nearestPoint = turf.nearestPointOnLine(turf.polygonToLineString(this.polygon), p);
 
       // console.log(nearestPoint)
+
+      if (this.mode === 1) return;
+
       
       var close_point = this.closePoint(vNow);
       var close_line = this.closeLine(vNow);
@@ -719,6 +743,7 @@ polyCentroid = () => {
   }
 
   onMouseUp = (evt) => {
+    this.isMouseDown = false;
     this.app.stage.removeListener("mousemove", this.onDragPoint, false);
     this.app.stage.removeListener("mousemove", this.onDragLine, false);
     this.app.stage.removeListener("mousemove", this.onDragPolygon, false);
@@ -737,6 +762,9 @@ polyCentroid = () => {
   };
 
   onMouseDown = (evt) => {
+    if (this.mode === 0){
+      this.isMouseDown = true;
+    }
     
     if (evt.which === 3) return;
 
@@ -782,15 +810,7 @@ polyCentroid = () => {
         this.drawShape();
         return;
       }
-
-      if (this.mode === 1) {
-        let p = turf.point([vNow.x , vNow.y]);
-
-        const nearestPoint = turf.nearestPointOnLine(this.polygon, p);
-
-      }
-
-      if (this.isInsidePolygon(vNow)) {
+      else if (this.isInsidePolygon(vNow)) {
         this.selected_polygon = [];
         this.plan_points.map((l) => {
           this.selected_polygon.push(l.sub(vNow));
@@ -802,6 +822,14 @@ polyCentroid = () => {
         this.drawShape();
         return;
       }
+
+      if (this.mode === 1) {
+        let p = turf.point([vNow.x , vNow.y]);
+
+        const nearestPoint = turf.nearestPointOnLine(this.polygon, p);
+
+      }
+
       return;}
 
     } else if (this.plan_points.length > 0) {
