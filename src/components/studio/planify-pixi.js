@@ -51,8 +51,8 @@ class PlanifyDraw extends Component {
 
     // creating app
 
-    const w = 1765;
-    const h = 800;
+    const w = 2000;
+    const h = 1000;
 
     this.width = w;
     this.height = h;
