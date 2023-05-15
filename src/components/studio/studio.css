@@ -1,5 +1,7 @@
 
-
+body {
+  overflow: hidden; /* Hide scrollbars */
+}
 
 .spinner {
     /* margin: 100px auto; */
