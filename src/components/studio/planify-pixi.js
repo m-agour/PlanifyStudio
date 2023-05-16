@@ -31,15 +31,15 @@ class PlanifyDraw extends Component {
     this.done = false;
     this.last_point = null;
     this.align = true;
-    this.align_factor = 3;
+    this.align_factor = 4;
     this.align_grid = true;
     this.horver = true;
-    this.grid_pitch_big = 50;
-    this.grid_pitch = 5;
+    this.grid_pitch_big = 80;
+    this.grid_pitch = 8;
     this.x_aligns = [];
     this.y_aligns = [];
     this.area = 0;
-    this.scale = 50;
+    this.scale = 80;
     this.mode = 0;
     // this.zoom = 1;
     this.door_poly = null;
@@ -384,8 +384,8 @@ class PlanifyDraw extends Component {
       }
       // Points
       this.lines.lineStyle(0);
-      this.lines.beginFill("0x070a5e", 0.5);
-      this.plan_points.map((l) => this.lines.drawCircle(l.x, l.y, 8));
+      this.lines.beginFill("0x070a5e", 1);
+      this.plan_points.map((l) => this.lines.drawCircle(l.x, l.y, 6));
       this.lines.endFill();
 
       // initial point and selected to red
@@ -398,17 +398,24 @@ class PlanifyDraw extends Component {
 
       if (!this.done) {
         this.lines.beginFill("0xff5555", 0.5);
-        this.lines.drawCircle(this.plan_points[0].x, this.plan_points[0].y, 8);
+        this.lines.drawCircle(this.plan_points[0].x, this.plan_points[0].y, 6);
         this.lines.endFill();
       } else if (this.done && this.selected_point !== null && !first_point_align) {
-        this.lines.beginFill("0xff0600", this.isMouseDown?1:0.5);
-        this.lines.drawCircle(this.selected_point.x, this.selected_point.y, 8);
-        this.lines.endFill();
+          if (this.isMouseDown){
+            this.lines.beginFill("0xff0600", this.isMouseDown?1:1);
+            this.lines.drawCircle(this.selected_point.x, this.selected_point.y, 8);
+            this.lines.endFill();
+          }
+          else{
+            this.lines.beginFill("0xaa1111", this.isMouseDown?1:1);
+            this.lines.drawCircle(this.selected_point.x, this.selected_point.y, 7);
+            this.lines.endFill();
+          }
       }
 
       if (first_point_align) {
         this.lines.beginFill("0xff0600", 1);
-        this.lines.drawCircle(this.plan_points[0].x, this.plan_points[0].y, 8);
+        this.lines.drawCircle(this.plan_points[0].x, this.plan_points[0].y, 7);
         this.lines.endFill();
       }
     }
@@ -780,9 +787,6 @@ polyCentroid = () => {
     this.last_point = null;
 
     if (this.done) {
-      if (this.door_poly){
-        this.mode = 0;
-      }
       if (this.mode === 0) {
 
       var close_point = this.closePoint(vNow);
@@ -823,14 +827,7 @@ polyCentroid = () => {
         return;
       }
 
-      if (this.mode === 1) {
-        let p = turf.point([vNow.x , vNow.y]);
-
-        const nearestPoint = turf.nearestPointOnLine(this.polygon, p);
-
-      }
-
-      return;}
+    }
 
     } else if (this.plan_points.length > 0) {
       let new_text = getText("0.0");
@@ -856,6 +853,10 @@ polyCentroid = () => {
       this.app.stage.addListener("mousemove", this.onMoveDraw, false);
       this.app.stage.addListener("mouseup", this.onMouseUp, false);
     };
+
+    if (this.door_poly){
+      this.mode = 0;
+    }
     
     }
 

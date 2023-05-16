@@ -84,6 +84,7 @@ body {
   .canvas-container {
   margin-left: 130px;
   height: 100%;
+  margin-top: -39.5px;
 }
 
 .planify-button{
