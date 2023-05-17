@@ -12,6 +12,10 @@ This is a Pixi.js studio that allows you to draw floor plans. You can draw walls
 
 
 
+https://github.com/PlanifyDev/PlanifyDraw/assets/63170874/44bcbeeb-3cd9-4548-a953-c7089f732d2d
+
+
+
 ## Getting Started
 
 To get started, clone this repository and open it in your favorite code editor. Then, run the following command to start the development server:
