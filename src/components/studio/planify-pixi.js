@@ -754,6 +754,7 @@ polyCentroid = () => {
     this.app.stage.removeListener("mousemove", this.onDragPoint, false);
     this.app.stage.removeListener("mousemove", this.onDragLine, false);
     this.app.stage.removeListener("mousemove", this.onDragPolygon, false);
+    
     if (this.done) {
       this.app.stage.on("mousemove", this.onSelect, false);
     }
@@ -787,6 +788,10 @@ polyCentroid = () => {
     this.last_point = null;
 
     if (this.done) {
+      if (this.door_poly && this.mode === 1){
+        this.mode = 0;
+        return;
+      }
       if (this.mode === 0) {
 
       var close_point = this.closePoint(vNow);
@@ -853,10 +858,6 @@ polyCentroid = () => {
       this.app.stage.addListener("mousemove", this.onMoveDraw, false);
       this.app.stage.addListener("mouseup", this.onMouseUp, false);
     };
-
-    if (this.door_poly){
-      this.mode = 0;
-    }
     
     }
 
@@ -922,6 +923,8 @@ polyCentroid = () => {
 
 setDoorMode = () => {
     this.mode = 1;
+    this.door_poly = null;
+    this.done = true;
   };
 
   render() {
