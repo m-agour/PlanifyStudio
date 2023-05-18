@@ -31,7 +31,7 @@ class PlanifyDraw extends Component {
     this.done = false;
     this.last_point = null;
     this.align = true;
-    this.align_factor = 4;
+    this.align_factor = 5;
     this.align_grid = true;
     this.horver = true;
     this.grid_pitch_big = 80;
@@ -52,7 +52,7 @@ class PlanifyDraw extends Component {
     // creating app
 
     const w = 2000;
-    const h = 1000;
+    const h = 2000;
 
     this.width = w;
     this.height = h;
