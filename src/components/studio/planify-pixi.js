@@ -154,8 +154,8 @@ class PlanifyDraw extends Component {
     this.container.addChild(this.areaText);
 
     this.app.stage.addListener("mousedown", this.onMouseDown, false);
-    this.app.stage.addListener("contextmenu", this.onRightClick, false);
-
+    this.app.stage.addListener("rightdown",this.onRightClick, false);
+    window.addEventListener("contextmenu", (e) => e.preventDefault());
     this.animate();
 
     // Events Handlers
@@ -487,8 +487,41 @@ class PlanifyDraw extends Component {
 
   alignPoints = (point, points, exclude = []) => {};
   onRightClick = (e) => {
-    e.preventDefault();
-    this.plan_points.pop();
+    if (this.done && this.mode === 1){
+    this.mode = 0; 
+    this.door_poly = [];
+    }
+    else if (this.done && this.mode === 0){
+      // this.done = false;
+      // this.mode = 1;
+      // this.door_poly = [];
+      // // return events to work
+      // this.onMoveDraw(e);
+
+      // this.app.stage.removeListener("mousemove", this.onMoveDraw, false);
+      //  remove poly and reset
+      // this.mode = 0;
+      // this.done = false;
+      // this.door_poly = [];
+      // this.plan_points = [];
+      // this.textContainer.removeChildren();
+      // this.lines.clear();
+      // this.drawShape();
+      // this.app.stage.removeListener("mousemove", this.onMoveDraw, false);
+      // this.app.stage.removeListener("mousedown", this.onMouseDown, false);
+      // this.app.stage.removeListener("mouseup", this.onMouseUp, false);
+      
+
+
+
+    }
+    else if (!this.done){
+      if (this.plan_points.length == 1) return;
+      this.plan_points.pop();
+      this.textContainer.removeChildAt(this.textContainer.children.length - 2);
+      this.onMoveDraw(e);
+      this.drawShape();
+    }
     this.drawShape();
   };
 
@@ -790,6 +823,7 @@ polyCentroid = () => {
     if (this.done) {
       if (this.door_poly && this.mode === 1){
         this.mode = 0;
+        this.drawShape();
         return;
       }
       if (this.mode === 0) {
@@ -934,7 +968,7 @@ setDoorMode = () => {
       <div className={'toolbar element'}>
         <div className={'toolbar-up'}>
           <Button className={'planify-door div-buttons'} onClick={this.setDoorMode}>Draw Door</Button> 
-      	  <Button className={'planify-selection div-buttons'} >Selection Mode</Button> 
+      	  {/* <Button className={'planify-selection div-buttons'} >Selection Mode</Button>  */}
         </div>
         <div className={'toolbar-down'}>
           <Button className={'planify-button div-buttons'} onClick={this.getPlanData} >Planify Now!</Button>
