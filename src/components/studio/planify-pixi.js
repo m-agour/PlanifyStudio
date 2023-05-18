@@ -831,6 +831,7 @@ polyCentroid = () => {
         this.drawShape();
         return;
       }
+      return ;
 
     }
 
