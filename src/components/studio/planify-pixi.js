@@ -51,8 +51,8 @@ class PlanifyDraw extends Component {
 
     // creating app
 
-    const w = 2000;
-    const h = 2000;
+    const w = 3000;
+    const h = 2500;
 
     this.width = w;
     this.height = h;
@@ -835,7 +835,7 @@ polyCentroid = () => {
         this.selected_point = close_point;
         this.selected_line = null;
         this.app.stage.addListener("mousemove", this.onDragPoint, false);
-        this.door_poly = null;
+        this.door_poly = [];
         this.drawShape();
         return;
       }
@@ -846,7 +846,7 @@ polyCentroid = () => {
           this.selected_line[1].sub(vNow),
         ];
         this.selected_point = null;
-        this.door_poly = null;
+        this.door_poly = [];
 
         this.app.stage.addListener("mousemove", this.onDragLine, false);
         
