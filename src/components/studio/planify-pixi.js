@@ -54,8 +54,8 @@ class PlanifyDraw extends Component {
 
     // creating app
 
-    const w = 2400;
-    const h = 1200;
+    const w = 1920;
+    const h = 1080;
 
     this.width = w;
     this.height = h;
@@ -63,12 +63,12 @@ class PlanifyDraw extends Component {
     this.app = new PIXI.Application({
       width: w,
       height: h,
-      backgroundColor: 0xeeeeee,
+      backgroundColor: 0xffffff,
       antialias: true,
     });
 
     // create a renderer instance
-    this.renderer = PIXI.autoDetectRenderer(4000, 30000);
+    this.renderer = PIXI.autoDetectRenderer(1000, 1000);
     // create a manager instance, passing stage and renderer.view
     this.manager = new PIXI.InteractionManager(
       this.app.stage,
@@ -159,38 +159,49 @@ class PlanifyDraw extends Component {
     this.app.stage.addListener("mousedown", this.onMouseDown, false);
     this.app.stage.addListener("rightdown",this.onRightClick, false);
     window.addEventListener("contextmenu", (e) => e.preventDefault());
-    this.animate();
+    // this.animate();
 
     // Events Handlers
     // window.addEventListener("resize", this.handleWindowResize);
 
     const camera = this.app.stage;
 
-    this.manager.on("pointermove", (e) => {
-        const {x, y} = e.data.global;
+    // this.manager.on("pointermove", (e) => {
+    //     const {x, y} = e.data.global;
 
-        camera.x = -x + this.renderer.width / 2;
-        camera.y = -y + this.renderer.height / 2;
-    });
+    //     camera.x = -x + this.renderer.width / 2;
+    //     camera.y = -y + this.renderer.height / 2;
+    // });
 
 this.app.view.addEventListener("wheel", (e) => {
     e.preventDefault();
     const delta = e.deltaY < 0 ? 1 : -1;
 
     let current = this.grid_pitch;
+    let new_pitch = current + delta * 1;
 
-    current += delta * 2;
-    current = Math.max(2, Math.min(current, 100));
+    new_pitch = Math.max(2, Math.min(new_pitch, 100));
 
-    this.grid_pitch = current;
-    this.grid_pitch_big = current * 10;
+    this.grid_pitch = new_pitch;
+    this.grid_pitch_big = new_pitch * 10;
     // conevert bext value  to int then add one
-    this.align_factor = Math.floor(current / 2) + 1;
+    this.align_factor = Math.floor(new_pitch / 2) + 1;
     this.scale = this.grid_pitch_big;
     this.app.stage.removeChild(this.grid);
     this.grid = getGridRect(w, h, this.grid_pitch, this.grid_pitch_big);
     this.app.stage.addChildAt(this.grid, 0);
-    console.log(current);
+    // print mouise position
+    console.log(this.app.renderer.plugins.interaction.mouse.global);
+    this.plan_points.forEach((point) => {
+      point.x = point.x / current * new_pitch;
+      point.y = point.y / current * new_pitch;
+
+    });
+    if (this.door_poly) {
+    this.door_poly[0] = this.door_poly[0] / current * new_pitch;
+    this.door_poly[1] = this.door_poly[1] / current * new_pitch;
+  } 
+    this.drawShape();
 });
 
   }
@@ -308,7 +319,7 @@ this.app.view.addEventListener("wheel", (e) => {
     if (this.lines && this.plan_points.length > 0) {
       // aligns
       this.lines.alpha = 0.3;
-      this.lines.lineStyle(1, "0xdddd00", 1);
+      this.lines.lineStyle(1, "0x00aa00", 1);
 
       for (let i = 0; i < this.x_aligns.length; i++) {
         this.lines.moveTo(this.x_aligns[i], 0);
@@ -382,12 +393,12 @@ this.app.view.addEventListener("wheel", (e) => {
             color = "0x888888";
         }
         if (this.door_horiz){
-          width = 70
-          height = 15
+          width = 70 * this.scale / 90
+          height = 15 * this.scale / 90
         }
         else{
-          width = 15
-          height = 70
+          width = 15 * this.scale / 90
+          height = 70 * this.scale / 90
         }
         this.lines.lineStyle({ width: 2 });
         this.lines.beginFill(color);
@@ -917,7 +928,7 @@ polyCentroid = () => {
   animate = (evt) => {
     const width = this.canvasRef.current.offsetWidth;
     const height = this.canvasRef.current.offsetHeight;
-    this.app.renderer.resize(this.width, this.height);
+    this.app.renderer.resize(this.width * 2, this.height * 2);
     requestAnimationFrame(this.animate);
     // if (this.plan_points.length > 0) this.last_point = this.getMousePos(evt)
     this.app.render();
