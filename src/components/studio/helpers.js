@@ -2,42 +2,41 @@ import * as PIXI from "pixi.js";
 import axios from "axios";
 
 export function getGridRect(w, h, pitch = 10, pitch_large = 100) {
-  //   var uniforms = {};
-  //   uniforms.offset = { type: "v2", value: { x: -2.0235, y: 2.9794 } };
-  //   uniforms.pitch = { type: "v2", value: { x: 50, y: 50 } };
-  //   uniforms.resolution = { type: "v2", value: { x: w, y: h } };
-  let shader = `
-    precision mediump float;
-    float vpw =  ${1000}.;
-    float vph =  ${1000}.;
-    vec2 offset = vec2(0, 0);
-    vec2 pitch = vec2(${pitch}, ${pitch});
-    vec2 pitch_large = vec2(${pitch_large}, ${pitch_large});
+  
+  // pixi grid \
+  let gr = new PIXI.Graphics();
+  gr.lineStyle(1, 0xdddddd, 1);
+  gr.beginFill(0x000000, 0.1);
+  let x = 0;
+  let y = 0;
+  let width = w;
+  let height = h;
+  let pitch_x = pitch;
+  let pitch_y = pitch;
+  let pitch_large_x = pitch_large;
+  let pitch_large_y = pitch_large;
 
-    void main() {
-        float lX = gl_FragCoord.x / vpw;
-        float lY = gl_FragCoord.y / vph;
-        float scaleFactor = 100.0;
-        float offX = (scaleFactor * offset[0]) + gl_FragCoord.x;
-        float offY = (scaleFactor * offset[1]) + (1.0 - gl_FragCoord.y);
-        if(int(mod(offX, pitch_large[0])) == 0 || int(mod(offY, pitch_large[1])) == 0){
-          gl_FragColor = vec4(0.0, 0.0, 0.0, 0.4);
-        }
-        else if (int(mod(offX, pitch[0])) == 0 || int(mod(offY, pitch[1])) == 0)  {
-            gl_FragColor = vec4(0.0, 0.0, 0.0, 0.06);
-        } else {
-            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-        }
-    }
-`;
-  var gridShader = new PIXI.Filter("", shader, {});
-  const grid = PIXI.Sprite.from(PIXI.Texture.WHITE);
-  grid.width = w;
-  grid.height = h;
-  //   grid.tint = 0xff0000;
-  grid.filters = [gridShader];
+  for (let i = 0; i < width / pitch_x; i++) {
+    gr.moveTo(x + i * pitch_x, y);
+    gr.lineTo(x + i * pitch_x, y + height);
+  }
+  for (let i = 0; i < height / pitch_y; i++) {
+    gr.moveTo(x, y + i * pitch_y);
+    gr.lineTo(x + width, y + i * pitch_y);
+  }
+  gr.lineStyle(1, 0x666666, 1);
 
-  return grid;
+  for (let i = 0; i < width / pitch_large_x; i++) {
+    gr.moveTo(x + i * pitch_large_x, y);
+    gr.lineTo(x + i * pitch_large_x, y + height);
+  }
+  for (let i = 0; i < height / pitch_large_y; i++) {
+    gr.moveTo(x, y + i * pitch_large_y);
+    gr.lineTo(x + width, y + i * pitch_large_y);
+  }
+
+  gr.endFill();
+  return gr;
 }
 
 
