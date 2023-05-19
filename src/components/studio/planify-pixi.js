@@ -31,15 +31,18 @@ class PlanifyDraw extends Component {
     this.done = false;
     this.last_point = null;
     this.align = true;
-    this.align_factor = 5;
     this.align_grid = true;
     this.horver = true;
-    this.grid_pitch_big = 80;
-    this.grid_pitch = 8;
+
     this.x_aligns = [];
     this.y_aligns = [];
     this.area = 0;
+
     this.scale = 80;
+    this.grid_pitch_big = 80;
+    this.grid_pitch = 8;
+    this.align_factor = 5;
+
     this.mode = 0;
     // this.zoom = 1;
     this.door_poly = null;
@@ -51,8 +54,8 @@ class PlanifyDraw extends Component {
 
     // creating app
 
-    const w = 2100;
-    const h = 1300;
+    const w = 2400;
+    const h = 1200;
 
     this.width = w;
     this.height = h;
@@ -170,12 +173,25 @@ class PlanifyDraw extends Component {
         camera.y = -y + this.renderer.height / 2;
     });
 
-// this.app.view.addEventListener("wheel", (e) => {
-//     e.preventDefault();
-//     const delta = e.deltaY < 0 ? 0.1 : -0.1;
-//     this.zoom = Math.max(0.1, Math.min(this.zoom + delta, 2));
-//     camera.scale.x = camera.scale.y = this.zoom;
-// });
+this.app.view.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 1 : -1;
+
+    let current = this.grid_pitch;
+
+    current += delta * 2;
+    current = Math.max(2, Math.min(current, 100));
+
+    this.grid_pitch = current;
+    this.grid_pitch_big = current * 10;
+    // conevert bext value  to int then add one
+    this.align_factor = Math.floor(current / 2) + 1;
+    this.scale = this.grid_pitch_big;
+    this.app.stage.removeChild(this.grid);
+    this.grid = getGridRect(w, h, this.grid_pitch, this.grid_pitch_big);
+    this.app.stage.addChildAt(this.grid, 0);
+    console.log(current);
+});
 
   }
 
@@ -207,7 +223,7 @@ class PlanifyDraw extends Component {
     return inside;
   }
 
-  closePoint = (mouse_pos, factor = 6) => {
+  closePoint = (mouse_pos, factor = 8) => {
     for (var i = 0; i < this.plan_points.length; i++) {
       if (this.isCollide(this.plan_points[i], mouse_pos, factor))
         return this.plan_points[i];
