@@ -8,8 +8,8 @@ export function getGridRect(w, h, pitch = 10, pitch_large = 100) {
   //   uniforms.resolution = { type: "v2", value: { x: w, y: h } };
   let shader = `
     precision mediump float;
-    float vpw =  ${100000}.;
-    float vph =  ${100000}.;
+    float vpw =  ${1000}.;
+    float vph =  ${1000}.;
     vec2 offset = vec2(0, 0);
     vec2 pitch = vec2(${pitch}, ${pitch});
     vec2 pitch_large = vec2(${pitch_large}, ${pitch_large});
@@ -17,7 +17,7 @@ export function getGridRect(w, h, pitch = 10, pitch_large = 100) {
     void main() {
         float lX = gl_FragCoord.x / vpw;
         float lY = gl_FragCoord.y / vph;
-        float scaleFactor = 10000.0;
+        float scaleFactor = 100.0;
         float offX = (scaleFactor * offset[0]) + gl_FragCoord.x;
         float offY = (scaleFactor * offset[1]) + (1.0 - gl_FragCoord.y);
         if(int(mod(offX, pitch_large[0])) == 0 || int(mod(offY, pitch_large[1])) == 0){
