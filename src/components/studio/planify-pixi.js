@@ -201,6 +201,21 @@ this.app.view.addEventListener("wheel", (e) => {
     this.door_poly[0] = this.door_poly[0] / current * new_pitch;
     this.door_poly[1] = this.door_poly[1] / current * new_pitch;
   } 
+  
+  let vNow = this.last_point;
+  let last = this.plan_points[this.plan_points.length - 1];
+  
+  
+  if (!this.done && this.plan_points.length > 0) {
+    if (this.horver) {
+      if (this.isHorizontal(last, vNow)) {
+        vNow.y = last.y;
+      } else {
+        vNow.x = last.x;
+      }
+      this.last_point = vNow;
+    }}
+
     this.drawShape();
 });
 
