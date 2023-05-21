@@ -1051,6 +1051,8 @@ setDoorMode = () => {
     this.mode = 1;
     this.door_poly = null;
     this.done = true;
+    this.setState({ doorMode: 1 });
+
   };
 
   render() {
@@ -1058,11 +1060,15 @@ setDoorMode = () => {
       <div ref={this.spinner} className="container">
       <div className={'toolbar element'}>
         <div className={'toolbar-up'}>
-          <Button className={'planify-door div-buttons'} onClick={this.setDoorMode}>Draw Door</Button> 
+        <div class="round-button div-buttons">
+        {this.state.doorMode? <div className="green-overlay"></div>:""}
+          <img onClick={this.setDoorMode} src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Circle-icons-door.svg/1024px-Circle-icons-door.svg.png" alt="Round Image"></img>
+        </div>
+
       	  {/* <Button className={'planify-selection div-buttons'} >Selection Mode</Button>  */}
         </div>
         <div className={'toolbar-down'}>
-          <Button className={'planify-button div-buttons'} onClick={this.getPlanData} >Planify Now!</Button>
+          <Button className={`planify-button div-buttons`} onClick={this.getPlanData} >Planify Now!</Button>
         </div>
         
       </div>
