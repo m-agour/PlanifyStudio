@@ -218,7 +218,6 @@ this.app.view.addEventListener("wheel", (e) => {
     this.app.stage.addChildAt(this.grid, 0);
 
     // print mouise position
-    // console.log(this.app.renderer.plugins.interaction.mouse.global);
     this.plan_points.forEach((point) => {
       point.x = point.x / current * new_pitch;
       point.y = point.y / current * new_pitch;
