@@ -222,6 +222,7 @@ this.app.view.addEventListener("wheel", (e) => {
   }
 
   isCollide = (a, b, factor = 10) => {
+    
     const d = a.distance(b);
     if (d <= factor) return true;
     return false;
