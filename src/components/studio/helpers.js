@@ -1,14 +1,13 @@
 import * as PIXI from "pixi.js";
 import axios from "axios";
 
-export function getGridRect(w, h, pitch = 10, pitch_large = 100) {
-  
-  // pixi grid \
+export function getGridRect(w, h, pitch = 10, pitch_large = 100, offsetX = 0, offsetY = 0) {
+  // pixi grid
   let gr = new PIXI.Graphics();
   gr.lineStyle(1, 0xdddddd, 1);
   gr.beginFill(0x000000, 0.1);
-  let x = 0;
-  let y = 0;
+  let x = offsetX;
+  let y = offsetY;
   let width = w;
   let height = h;
   let pitch_x = pitch;
