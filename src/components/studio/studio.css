@@ -66,7 +66,7 @@ body {
     padding-bottom: 20px;
     padding-left: 4px;
     border: 1px solid rgba(0, 0, 0, 0.858);
-    width: 130px;
+    width: 100px;
     max-width: 130px;
     background-color: #ffffff52;
     position: absolute;
@@ -82,7 +82,7 @@ body {
   }
   
   .canvas-container {
-  margin-left: 130px;
+  margin-left: 100px;
   height: 100%;
   margin-top: 0px;
 }
@@ -152,7 +152,7 @@ color: white;
   height: 60px;
   max-width: 90px;
   margin-top: 20px;
-  margin-left: 15px;
+  margin-left: 5px;
 }
 
 .toolbar-up{
