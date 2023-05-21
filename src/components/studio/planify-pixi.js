@@ -52,6 +52,10 @@ class PlanifyDraw extends Component {
 
     this.isMouseDown = false;
 
+    this.drag_grid_start_pos = null;
+    this.gridXOffset = 0;
+    this.gridYOffset = 0;
+
     // creating app
 
     const w = 1920;
@@ -187,9 +191,32 @@ this.app.view.addEventListener("wheel", (e) => {
     // conevert bext value  to int then add one
     this.align_factor = Math.floor(new_pitch / 2) + 1;
     this.scale = this.grid_pitch_big;
+
+    let mouse_pos = this.getMousePos(true);
+
+    let gridXOffset = (mouse_pos.x - this.gridXOffset * this.grid_pitch) / current;
+    let gridYOffset = (mouse_pos.y - this.gridYOffset * this.grid_pitch) / current;
+
+    
+    
+    let newLengthX = gridXOffset * new_pitch;
+    let newLengthY = gridYOffset * new_pitch;
+
+    gridXOffset = (newLengthX - this.gridXOffset) ; 
+    gridYOffset = (newLengthY - this.gridYOffset) ;
+
+    // if (gridXOffset < -this.grid_pitch_big || gridXOffset > this.grid_pitch_big) gridXOffset = Math.floor(((gridXOffset / this.grid_pitch_big) % 1 * 10))/10 * this.grid_pitch_big;
+    // if (gridYOffset < -this.grid_pitch_big || gridYOffset > this.grid_pitch_big) gridYOffset = Math.floor(((gridYOffset / this.grid_pitch_big) % 1 * 10))/10 * this.grid_pitch_big;
+
+    gridXOffset = Math.floor(((gridXOffset / this.grid_pitch_big) % 1 * 10))/10 * this.grid_pitch_big;
+    gridYOffset = Math.floor(((gridYOffset / this.grid_pitch_big) % 1 * 10))/10 * this.grid_pitch_big;
+
+    gridXOffset = gridXOffset - this.grid_pitch_big;
+    gridYOffset = gridYOffset - this.grid_pitch_big;
     this.app.stage.removeChild(this.grid);
-    this.grid = getGridRect(w, h, this.grid_pitch, this.grid_pitch_big);
+    this.grid = getGridRect(this.width, this.height, this.grid_pitch, this.grid_pitch_big, gridXOffset, gridYOffset);
     this.app.stage.addChildAt(this.grid, 0);
+
     // print mouise position
     console.log(this.app.renderer.plugins.interaction.mouse.global);
     this.plan_points.forEach((point) => {
@@ -222,7 +249,7 @@ this.app.view.addEventListener("wheel", (e) => {
   }
 
   isCollide = (a, b, factor = 10) => {
-    
+
     const d = a.distance(b);
     if (d <= factor) return true;
     return false;
@@ -464,9 +491,9 @@ this.app.view.addEventListener("wheel", (e) => {
     }
   };
 
-  getMousePos = (evt, asVector = false, alignGrid=false) => {
-    let x = evt.data.global.x / this.zoom;
-    let y = evt.data.global.y / this.zoom;
+  getMousePos = (asVector = false, alignGrid=false) => {
+    let x = this.app.renderer.plugins.interaction.mouse.global.x / this.zoom;
+    let y = this.app.renderer.plugins.interaction.mouse.global.y / this.zoom;
     if (alignGrid ){
       x = Math.round(x / this.grid_pitch) * this.grid_pitch;
       y = Math.round(y / this.grid_pitch) * this.grid_pitch;
@@ -570,7 +597,7 @@ this.app.view.addEventListener("wheel", (e) => {
 
   onMoveDraw = (evt) => {
     
-    let new_point = this.getMousePos(evt, true);
+    let new_point = this.getMousePos(true);
     // this.ch.x = new_point.x ;
     // this.ch.y = new_point.y - this.ch.width;
     let last = this.plan_points[this.plan_points.length - 1];
@@ -600,7 +627,7 @@ this.app.view.addEventListener("wheel", (e) => {
       let prev, next;
       if (this.selected_point === null) return;
 
-      let new_pos = this.getMousePos(evt, true);
+      let new_pos = this.getMousePos(true);
 
       if (this.horver) {
         let idx = this.plan_points.indexOf(this.selected_point);
@@ -651,7 +678,7 @@ this.app.view.addEventListener("wheel", (e) => {
     if (this.app) {
       if (this.selected_line === null) return;
 
-      var mpos = this.getMousePos(evt, true);
+      var mpos = this.getMousePos(true);
 
       let align_x = true;
       let align_y = true;
@@ -690,7 +717,7 @@ this.app.view.addEventListener("wheel", (e) => {
       if (this.selected_polygon === null) return;
       let [minPoint, maxPoint] = this.minMax(this.selected_polygon);
 
-      let mouse_pos = this.getMousePos(evt, true,true);
+      let mouse_pos = this.getMousePos(true,true);
 
       let newMin = minPoint.add(mouse_pos);
       let newMax = maxPoint.add(mouse_pos);
@@ -701,10 +728,20 @@ this.app.view.addEventListener("wheel", (e) => {
       if (newMin.x < 0) mouse_pos.x = minPoint.x;
       if (newMin.y < 0) mouse_pos.y = minPoint.y;
 
-      mouse_pos = this.getMousePos(evt, true, true);
+      mouse_pos = this.getMousePos(true, true);
       if (mouse_pos)
         for (var i = 0; i < this.plan_points.length; i++) {
           this.plan_points[i] = this.selected_polygon[i].add(mouse_pos);
+        }
+
+        if (this.drag_grid_start_pos){
+          let gridXOffset = (mouse_pos.x  - this.drag_grid_start_pos.x  + this.gridXOffset * this.grid_pitch) % this.grid_pitch_big;
+          let gridYOffset = (mouse_pos.y - this.drag_grid_start_pos.y + this.gridYOffset * this.grid_pitch) % this.grid_pitch_big ;
+          if (gridXOffset > 0) gridXOffset -= this.grid_pitch_big;
+          if (gridYOffset > 0) gridYOffset -= this.grid_pitch_big;
+          this.app.stage.removeChild(this.grid);
+          this.grid = getGridRect(this.width, this.height, this.grid_pitch, this.grid_pitch_big, gridXOffset, gridYOffset);
+          this.app.stage.addChildAt(this.grid, 0);
         }
 
         if(this.selected_door_poly){
@@ -727,7 +764,7 @@ this.app.view.addEventListener("wheel", (e) => {
     if (this.done) {
 
       
-      var vNow = this.getMousePos(evt, true);
+      var vNow = this.getMousePos(true);
 
 
       if (this.mode === 1){
@@ -830,6 +867,13 @@ polyCentroid = () => {
     this.app.stage.removeListener("mousemove", this.onDragPoint, false);
     this.app.stage.removeListener("mousemove", this.onDragLine, false);
     this.app.stage.removeListener("mousemove", this.onDragPolygon, false);
+
+    if (this.drag_grid_start_pos){
+      var last = this.getMousePos(true, true);
+      this.gridXOffset = (last.x  - this.drag_grid_start_pos.x  + this.gridXOffset * this.grid_pitch) / this.grid_pitch;
+      this.gridYOffset = (last.y  - this.drag_grid_start_pos.y  + this.gridYOffset * this.grid_pitch) / this.grid_pitch;
+      this.drag_grid_start_pos = null;
+    }
     
     if (this.done) {
       this.app.stage.on("mousemove", this.onSelect, false);
@@ -837,6 +881,7 @@ polyCentroid = () => {
     this.selected_line = null;
     this.selected_point = null;
     this.selected_polygon = null;
+    this.drag_grid_start_pos = null;
 
     this.drawShape();
   };
@@ -855,7 +900,7 @@ polyCentroid = () => {
     if (this.last_point) {
       var vNow = this.last_point.clone();
     } else {
-      var vNow = this.getMousePos(evt, true, true);
+      var vNow = this.getMousePos(true, true);
     }
 
     this.app.stage.removeListener("mousemove", this.onMoveDraw, false);
@@ -896,7 +941,10 @@ polyCentroid = () => {
         this.drawShape();
         return;
       }
-      else if (this.isInsidePolygon(vNow)) {
+      else {
+        if (!this.isInsidePolygon(vNow)) {
+          this.drag_grid_start_pos = vNow.clone();
+        }
         this.selected_polygon = [];
         this.plan_points.map((l) => {
           this.selected_polygon.push(l.sub(vNow));
@@ -908,6 +956,7 @@ polyCentroid = () => {
         this.drawShape();
         return;
       }
+        
       return ;
 
     }
