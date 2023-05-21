@@ -21,8 +21,11 @@ class PlanifyDraw extends Component {
 
     this.zoom = 1
     
-    
+    this.state = {
+      doorMode: 0
+    };
   }
+  
   // navigate = useNavigate();
 
   componentDidMount() {
@@ -431,23 +434,39 @@ this.app.view.addEventListener("wheel", (e) => {
         let width = 0;
         let height = 0;
         let color = "0x00ff04";
+
+        let door_poly = this.door_poly;
+
         if (this.mode === 1) {
             color = "0x888888";
         }
         if (this.door_horiz){
           width = 70 * this.scale / 90
           height = 15 * this.scale / 90
+          if (this.door_right){
+            door_poly = [door_poly[0], door_poly[1] + height / 2]
+          }
+          else{
+            door_poly = [door_poly[0], door_poly[1] - height / 2]
+          }
         }
         else{
           width = 15 * this.scale / 90
           height = 70 * this.scale / 90
+
+          if (this.door_right){
+            door_poly = [door_poly[0] + width / 2, door_poly[1]]
+          }
+          else{
+            door_poly = [door_poly[0] - width / 2, door_poly[1]]
+          }
         }
         this.lines.lineStyle({ width: 2 });
         this.lines.beginFill(color);
-        this.lines.moveTo(this.door_poly[0] - width / 2, this.door_poly[1] - height / 2);
-        this.lines.lineTo(this.door_poly[0] + width / 2, this.door_poly[1] - height / 2);
-        this.lines.lineTo(this.door_poly[0] + width / 2, this.door_poly[1] + height / 2);
-        this.lines.lineTo(this.door_poly[0] - width / 2, this.door_poly[1] + height / 2);
+        this.lines.moveTo(door_poly[0] - width / 2, door_poly[1] - height / 2);
+        this.lines.lineTo(door_poly[0] + width / 2, door_poly[1] - height / 2);
+        this.lines.lineTo(door_poly[0] + width / 2, door_poly[1] + height / 2);
+        this.lines.lineTo(door_poly[0] - width / 2, door_poly[1] + height / 2);
         this.lines.closePath();
         this.lines.endFill();
       }
@@ -558,6 +577,7 @@ this.app.view.addEventListener("wheel", (e) => {
   onRightClick = (e) => {
     if (this.done && this.mode === 1){
     this.mode = 0; 
+    this.setState({ doorMode: 0 });
     this.door_poly = [];
     }
     else if (this.done && this.mode === 0){
@@ -780,9 +800,22 @@ this.app.view.addEventListener("wheel", (e) => {
           const nearest = this.getClosestPoint(allp, point);
           this.door_poly = nearest.geometry.coordinates
           if (p1.includes(nearest)){
-            this.door_horiz = true
+            this.door_horiz = true;
+            // check if the point at left or right of current pos
+            if (nearest.geometry.coordinates[1] < vNow.y){
+              this.door_right = true;
+            } else {
+              this.door_right = false;
+            }
           } else {
-            this.door_horiz = false
+            this.door_horiz = false;
+            if (nearest.geometry.coordinates[0] < vNow.x){
+              this.door_right = true;
+            }
+            else {
+              this.door_right = false;
+            }
+
           }
           this.drawShape();
         }
@@ -910,6 +943,7 @@ polyCentroid = () => {
     if (this.done) {
       if (this.door_poly && this.mode === 1){
         this.mode = 0;
+        this.setState({ doorMode: 0 });
         this.drawShape();
         return;
       }
@@ -1048,6 +1082,7 @@ polyCentroid = () => {
 }
 
 setDoorMode = () => {
+    if (!this.done) return;
     this.mode = 1;
     this.door_poly = null;
     this.done = true;
