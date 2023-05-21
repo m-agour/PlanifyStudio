@@ -375,8 +375,6 @@ this.app.view.addEventListener("wheel", (e) => {
         this.lines.lineTo(10000, this.y_aligns[i]);
       }
 
-      // if (this.last_point !== null) {
-      // console.log(this.last_point.x / this.scale);}
       this.x_aligns = [];
       this.y_aligns = [];
 
@@ -390,7 +388,6 @@ this.app.view.addEventListener("wheel", (e) => {
 
       // polygon
       this.lines.lineStyle({ width: 2.5 });
-      // let polyColor = polySelected?"0xffa111":"0xffd000";
       let polyColor = "0xffd000";
       let polySelected = this.done&&(this.selected_polygon||this.selected_line||this.selected_point);
       this.lines.beginFill(polyColor, this.isMouseDown&&polySelected&&!this.drag_grid_start_pos?0.7:1);
@@ -617,8 +614,6 @@ this.app.view.addEventListener("wheel", (e) => {
   onMoveDraw = (evt) => {
     
     let new_point = this.getMousePos(true);
-    // this.ch.x = new_point.x ;
-    // this.ch.y = new_point.y - this.ch.width;
     let last = this.plan_points[this.plan_points.length - 1];
     let first = this.plan_points[0];
 
@@ -822,11 +817,6 @@ this.app.view.addEventListener("wheel", (e) => {
         return;
     }
 
-      // console.log(allp.map((l) => (l.geometry.coordinates)));
-
-      // const nearestPoint = turf.nearestPointOnLine(turf.polygonToLineString(this.polygon), p);
-
-      // console.log(nearestPoint)
 
       if (this.mode === 1) return;
 
