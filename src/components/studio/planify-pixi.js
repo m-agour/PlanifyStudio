@@ -214,11 +214,11 @@ this.app.view.addEventListener("wheel", (e) => {
     gridXOffset = gridXOffset - this.grid_pitch_big;
     gridYOffset = gridYOffset - this.grid_pitch_big;
     this.app.stage.removeChild(this.grid);
-    this.grid = getGridRect(this.width, this.height, this.grid_pitch, this.grid_pitch_big, gridXOffset, gridYOffset);
+    this.grid = getGridRect(this.width, this.height, this.grid_pitch, this.grid_pitch_big, 0, 0);
     this.app.stage.addChildAt(this.grid, 0);
 
     // print mouise position
-    console.log(this.app.renderer.plugins.interaction.mouse.global);
+    // console.log(this.app.renderer.plugins.interaction.mouse.global);
     this.plan_points.forEach((point) => {
       point.x = point.x / current * new_pitch;
       point.y = point.y / current * new_pitch;
@@ -391,7 +391,7 @@ this.app.view.addEventListener("wheel", (e) => {
       // let polyColor = polySelected?"0xffa111":"0xffd000";
       let polyColor = "0xffd000";
       let polySelected = this.done&&(this.selected_polygon||this.selected_line||this.selected_point);
-      this.lines.beginFill(polyColor, this.isMouseDown&&polySelected?0.7:1);
+      this.lines.beginFill(polyColor, this.isMouseDown&&polySelected&&!this.drag_grid_start_pos?0.7:1);
       this.lines.moveTo(this.plan_points[0].x, this.plan_points[0].y);
       if (!this.done) this.lines.endFill();
 
