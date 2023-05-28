@@ -6,6 +6,7 @@ import { isLoggedIn } from "./services/helpers";
 import Studio from "./pages/studio/studio";
 import Result from "./pages/result/result";
 import Footer from './components/footer/footer';
+import Viewer from "./pages/Viewer/Viewer";
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Studio />} />
           <Route path="/result" element={<Result/>} />
+          <Route path="/viewer" element={<Viewer/>} />
         </Routes>
 
         <div>
