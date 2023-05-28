@@ -6,6 +6,7 @@ import Footer from "../../components/footer/footer";
 import PlanifyDraw from '../../components/studio/planify-pixi';
 import ImageDisplay from "../../components/imageDisplay/ImageDisplay";
 import { useEffect, useState } from "react";
+import Viewer from "../Viewer/Viewer";
 
 
 const App = () => { 
@@ -37,8 +38,11 @@ const App = () => {
         image2Title="Generated Layout"
       />
     </div>
+
+    <Viewer/>
     <Footer />
     </Fragment>
+    
   );
 };
 

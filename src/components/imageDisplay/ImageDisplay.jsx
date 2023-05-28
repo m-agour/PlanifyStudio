@@ -3,6 +3,7 @@ import { FaArrowRight, FaRedo } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Image, Button } from 'react-bootstrap';
 import './ImageDisplay.css';
+import Viewer from '../../pages/Viewer/Viewer';
 
 const ImageDisplay = ({ image1, image2 }) => {
     const navigate = useNavigate();
@@ -23,8 +24,10 @@ const ImageDisplay = ({ image1, image2 }) => {
           <FaArrowRight size={48} />
         </Col> */}
         <Col xs={6} className="text-center">
-          <p className="image-title">Output</p>
-          <Image src={image2} alt="Output" fluid className="image" />
+          <p className="image-title">3D Design</p>
+          {/* <Image src={image2} alt="Output" fluid className="image" /> */}
+          <Viewer  className="image"/>
+
         </Col>
       </Row>
       <Row className="justify-content-center">
