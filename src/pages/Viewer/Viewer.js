@@ -1,6 +1,6 @@
 import React, { Suspense, useRef } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stage, Sphere } from '@react-three/drei';
+import { Canvas} from '@react-three/fiber';
+import { OrbitControls, Stage, Sphere, Environment} from '@react-three/drei';
 import { Model } from './Model';
 import * as THREE from 'three';
 import { useEffect } from 'react';
@@ -76,7 +76,18 @@ export default function Viewer() {
   <OrbitControls ref={ref} />
   <ambientLight intensity={1} />
   <spotLight intensity={0.5} angle={0.1} penumbra={1} position={[10, 15, 10]} castShadow />
-  <directionalLight intensity={0.5} position={[10, 10, 10]} />
+  <Environment preset="lobby" />
+{/*     sunset: string;
+    dawn: string;
+    night: string;
+    warehouse: string;
+    forest: string;
+    apartment: string;
+    studio: string;
+    city: string;
+    park: string;
+    lobby: string; */}
+  <directionalLight intensity={1} position={[50, 100, 100]} />
   <Sphere args={[2, 2, 2]} />
 </Canvas>
 

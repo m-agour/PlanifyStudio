@@ -1044,14 +1044,15 @@ polyCentroid = () => {
     reqData.door_pos = this.door_poly;
     reqData.area = this.area;
   let response ;
-    // submit the data to the server
   submitData(reqData)
   .then(async (res) => {
+    console.log("response >>>>", response);
 
 
     response = await res.data;
     const d = encodeURIComponent(JSON.stringify(response));
-    window.location.href = "/result?state="+d;
+    console.log("response >>>>", response);
+    // window.location.href = "/result?state="+d;
    })
    .catch((error) => {
     console.error(error);
