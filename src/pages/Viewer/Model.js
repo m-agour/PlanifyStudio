@@ -34,9 +34,9 @@ export function Model(props) {
   
   const material = nodes.geometry_0.material
   material.normalMap = normalMap;
-  material.roughnessMap = roughnessMap;
-  material.aoMap = aoMap;
-  material.map = colorMap;
+  // material.roughnessMap = roughnessMap;
+  // material.aoMap = aoMap;
+  // material.map = colorMap;
   // material.displacementMap = displacementMap;
   
 
@@ -52,6 +52,6 @@ export function Model(props) {
       />
     </group>
   );
-}
+} 
 
 useGLTF.preload("/out_1 - Copy.gltf");
