@@ -76,7 +76,7 @@ export default function Viewer() {
   <OrbitControls ref={ref} />
   <ambientLight intensity={1} />
   <spotLight intensity={0.5} angle={0.1} penumbra={1} position={[10, 15, 10]} castShadow />
-  <Environment preset="lobby" />
+  {/* <Environment preset="lobby" /> */}
 {/*     sunset: string;
     dawn: string;
     night: string;
