@@ -87,6 +87,7 @@ class PlanifyDraw extends Component {
 
     this.container = new PIXI.Container();
     this.textContainer = new PIXI.Container();
+    this.doorContainer = new PIXI.Container();
 
 
     this.areaText = new PIXI.Text("Area: 0", {});
@@ -151,17 +152,20 @@ class PlanifyDraw extends Component {
     this.current_text = getText("0.0");
 
     this.lines = new PIXI.Graphics();
+    this.doorLines = new PIXI.Graphics();
     this.text = new PIXI.Graphics();
     this.grid = getGridRect(w, h, this.grid_pitch, this.grid_pitch_big);
 
     this.app.stage.addChild(this.grid);
     this.app.stage.addChild(this.container);
     this.app.stage.addChild(this.textContainer);
+    this.app.stage.addChild(this.doorContainer);
     this.container.addChild(this.lines);
     this.textContainer.addChild(this.current_text);
     // this.container.addChild(this.textContainer);
     this.app.stage.addChild(this.ch);
     this.container.addChild(this.areaText);
+    this.doorContainer.addChild(this.doorLines);
 
     this.app.stage.addListener("mousedown", this.onMouseDown, false);
     this.app.stage.addListener("rightdown",this.onRightClick, false);
@@ -361,6 +365,7 @@ this.app.view.addEventListener("wheel", (e) => {
     }
 
     this.lines.clear();
+    this.doorLines.clear();
     if (this.lines && this.plan_points.length > 0) {
       // aligns
       this.lines.alpha = 0.3;
@@ -458,14 +463,14 @@ this.app.view.addEventListener("wheel", (e) => {
             door_poly = [door_poly[0] - width / 2, door_poly[1]]
           }
         }
-        this.lines.lineStyle({ width: 2 });
-        this.lines.beginFill(color);
-        this.lines.moveTo(door_poly[0] - width / 2, door_poly[1] - height / 2);
-        this.lines.lineTo(door_poly[0] + width / 2, door_poly[1] - height / 2);
-        this.lines.lineTo(door_poly[0] + width / 2, door_poly[1] + height / 2);
-        this.lines.lineTo(door_poly[0] - width / 2, door_poly[1] + height / 2);
-        this.lines.closePath();
-        this.lines.endFill();
+        this.doorLines.lineStyle({ width: 2 });
+        this.doorLines.beginFill(color);
+        this.doorLines.moveTo(door_poly[0] - width / 2, door_poly[1] - height / 2);
+        this.doorLines.lineTo(door_poly[0] + width / 2, door_poly[1] - height / 2);
+        this.doorLines.lineTo(door_poly[0] + width / 2, door_poly[1] + height / 2);
+        this.doorLines.lineTo(door_poly[0] - width / 2, door_poly[1] + height / 2);
+        this.doorLines.closePath();
+        this.doorLines.endFill();
       }
       // Points
       this.lines.lineStyle(0);
@@ -790,21 +795,21 @@ this.app.view.addEventListener("wheel", (e) => {
         const point =  turf.point([vNow.x, vNow.y])
 
         let allp = p1.concat(p2)
-
+        let center = turf.centerOfMass(this.polygon).geometry.coordinates
         if (allp.length){
           const nearest = this.getClosestPoint(allp, point);
           this.door_poly = nearest.geometry.coordinates
           if (p1.includes(nearest)){
             this.door_horiz = true;
-            // check if the point at left or right of current pos
-            if (nearest.geometry.coordinates[1] < vNow.y){
+            // check if the point at left or right of current pos and outside polygon
+            if ((nearest.geometry.coordinates[1] < vNow.y && center[1] < vNow.y) || (nearest.geometry.coordinates[1] > vNow.y && center[1] < vNow.y)){
               this.door_right = true;
             } else {
               this.door_right = false;
             }
           } else {
             this.door_horiz = false;
-            if (nearest.geometry.coordinates[0] < vNow.x){
+            if ((nearest.geometry.coordinates[0] < vNow.x && center[0] < vNow.x) || (nearest.geometry.coordinates[0] > vNow.x && center[0] < vNow.x)){
               this.door_right = true;
             }
             else {
@@ -1023,11 +1028,19 @@ polyCentroid = () => {
     // this.current_pos = null
   };
 
-
-  getPlanData = async() => {
-
-
-
+  postRequest = (data) => {
+      // send post request
+      fetch("http://localhost:5000/design", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((res) =>     window.location.href = "/result"        )
+  }
+  
+  getPlanData = () => {
     this.spinner.current.innerHTML =     `<div class="spinner">
     <div class="bounce1"></div>
     <div class="bounce2"></div>
@@ -1043,32 +1056,8 @@ polyCentroid = () => {
     reqData.mask = data.map((l) => l.toArray());
     reqData.door_pos = this.door_poly;
     reqData.area = this.area;
-  let response ;
-  submitData(reqData)
-  .then(async (res) => {
-    console.log("response >>>>", response);
 
-
-    response = await res.data;
-    const d = encodeURIComponent(JSON.stringify(response));
-    console.log("response >>>>", response);
-    // window.location.href = "/result?state="+d;
-   })
-   .catch((error) => {
-    console.error(error);
-  });
-  // const Navigation = useNavigation();
-  // Navigation.navigate('/result', { state: 2 });
-   
-      // navigate(to='/result', { state: res });
-      // console.log(res);
-
-    //       const { history } = this.props;
-    // // Use the history object from props to navigate programmatically
-    // history.push('/result ');
-
-// console.log("reqData >>>>", reqData);
-// console.log("res >>>>", d);
+    this.postRequest(reqData);
 
 }
 
@@ -1094,7 +1083,7 @@ setDoorMode = () => {
       	  {/* <Button className={'planify-selection div-buttons'} >Selection Mode</Button>  */}
         </div>
         <div className={'toolbar-down'}>
-          <Button className={`planify-button div-buttons`} onClick={this.getPlanData} >Planify Now!</Button>
+          <Button  type="button" className={`planify-button div-buttons`} onClick={this.getPlanData} >Planify Now!</Button>
         </div>
         
       </div>

@@ -7,7 +7,7 @@ import { TextureLoader } from 'three/src/loaders/TextureLoader'
 import { MeshStandardMaterial } from "three";
 
 export function Model(props) {
-  const { nodes, materials } = useGLTF("plan3.fy.gltf");
+  const { nodes, materials } = useGLTF("output.gltf");
 
   console.log(nodes, materials);
   // nodes.geometry_0.material.color.set(0x888888); // Set the color to red
@@ -27,7 +27,7 @@ export function Model(props) {
   //   // displacementMap: displacementMap,
   //   normalMap: normalMap,
   //   roughnessMap: roughnessMap,
-  //   aoMap: aoMap,
+  //   aoMap: aoMap, 
   // })
   
   // const material = nodes.geometry_0.material
@@ -37,22 +37,24 @@ export function Model(props) {
   // material.map = colorMap;
   // material.displacementMap = displacementMap;
   
-
+  console.log(typeof( nodes));
 
   return (
     <group {...props} dispose={null}>
-      {nodes.map((element, index) => (
+      {Object.entries(nodes).map(([key, element]) => (
         <mesh
-          key={index}
-          castShadow
-          receiveShadow
+          key={key}
+          castShadow={true}
+          receiveShadow={true}
           geometry={element.geometry}
           material={element.material}
-          position={[-128, 0, -128]}
+          position={element.position}
         />
       ))}
     </group>
   );
+  
+  
 } 
 
 useGLTF.preload("plan3.fy.gltf");

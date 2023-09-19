@@ -10,19 +10,20 @@ import Viewer from "../Viewer/Viewer";
 
 
 const App = () => { 
+    document.title = "Results";
 
   // const [img1, setImg1] = useState(null);
   // const [img2, setImg2] = useState(null);
   let data = null
 
-    const params = new URLSearchParams(window.location.search);
-    const state = params.get("state");
-    JSON.parse(decodeURIComponent(state))
-    if (state) {
-      data = JSON.parse(decodeURIComponent(state));
-      console.log(data);
+    // const params = new URLSearchParams(window.location.search);
+    // const state = params.get("state");
+    // JSON.parse(decodeURIComponent(state))
+    // if (state) {
+    //   data = JSON.parse(decodeURIComponent(state));
+    //   console.log(data);
 
-    }
+    // }
 
 
 
@@ -32,15 +33,15 @@ const App = () => {
     {/* <Header /> */}
     <div>
       <ImageDisplay
-        image1={data.project_img}
-        image1Title="Input Boundary"
-        image2={data.design_img}
-        image2Title="Generated Layout"
+        // image1={data.project_img}
+        // image1Title="Input Boundary"
+        // image2={data.design_img}
+        // image2Title="Generated Layout"
       />
     </div>
 
     <Viewer/>
-    <Footer />
+    {/* <Footer /> */}
     </Fragment>
     
   );

@@ -10,28 +10,28 @@ const ImageDisplay = ({ image1, image2 }) => {
 
 
   const handleClick = () => {
-    navigate('/');
+    // navigate('/');
   };
 
   return (
     <Container fluid className="image-display">
       <Row className="align-items-center h-100">
         <Col xs={6} className="text-center">
-          <p className="image-title">Input</p>
-          <Image src={image1} alt="Input" fluid className="image" />
+          <a className="image-title" href="http://localhost:8970/download_floor_plan" dowload>Floor Plan</a>
+          <Image src={"output.png"} alt="Input" fluid className="image" />
         </Col>
         {/* <Col xs={2} className="text-center arrow-container">
           <FaArrowRight size={48} />
         </Col> */}
         <Col xs={6} className="text-center">
-          <p className="image-title">3D Design</p>
+          <a className="image-title" href="http://localhost:8970/download_model" dowload>3D Design</a>
           {/* <Image src={image2} alt="Output" fluid className="image" /> */}
           <Viewer  className="image"/>
 
         </Col>
       </Row>
       <Row className="justify-content-center">
-        <Button variant="danger" className="another-button" onClick={handleClick}>
+        <Button variant="danger" className="" onClick={handleClick}>
           <FaRedo size={18} /> Another Design
         </Button>
       </Row>

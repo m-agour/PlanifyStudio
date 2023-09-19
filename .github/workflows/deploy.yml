@@ -1,0 +1,37 @@
+name: Planify-Draw-deployment
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Connect to server via SSH
+        env:
+          MACHINE_HOST: ${{ secrets.MACHINE_HOST }}
+          MACHINE_USERNAME: ${{ secrets.MACHINE_USERNAME }}
+          MACHINE_KEY: ${{ secrets.MACHINE_KEY }}
+
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ env.MACHINE_HOST }}
+          username: ${{ env.MACHINE_USERNAME }}
+          key: ${{ env.MACHINE_KEY }}
+          port: 22
+          script: |
+            rm -rf PlanifyDraw 
+            git clone git@github.com:PlanifyDev/PlanifyDraw.git
+            cd PlanifyDraw
+            npm install
+            npm run build
+            mv build ../server/studio
+            cd ../server
+            sudo pm2 delete studio
+            sudo pm2 start studio.js

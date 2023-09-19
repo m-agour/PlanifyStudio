@@ -5,7 +5,8 @@ import './header.css';
 const Header = () => {
   return (
     <header className="header">
-      <h1 className="header-brand">Planify</h1>
+     {/* make header link to root */}
+      <a   className="header-brand" href="/" ><h1 className="header-brand">Planify</h1></a>
     </header>
   );
 };

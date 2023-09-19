@@ -3,7 +3,10 @@ import React from "react";
 import classes from "./studio.module.css";
 import PlanifyDraw from '../../components/studio/planify-pixi';
 
-const Studio = () => (
+const Studio = function(){
+  document.title = "Studio | Planify";
+
+  return (
   <>
     <Header />
     
@@ -13,4 +16,5 @@ const Studio = () => (
     
   </>
 );
+  }
 export default Studio;
