@@ -2,6 +2,7 @@
 # Pixi.js Floor Plan Studio
 
 This is a Pixi.js studio that allows you to draw floor plans. You can draw walls, doors, and other shapes, and you can edit and move them around.
+Mainly developed as a part of the Plannify project: https://github.com/m-agour/Plannify
 
 ## Features
 
